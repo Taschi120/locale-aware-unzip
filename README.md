@@ -27,4 +27,4 @@ A Java Runtime Environment, version 8 or higher, is required. I recommend using 
 https://adoptium.net/. Oracle's official JRE should also work.
 
 The project is licensed under GPL v3. Please contact me at dev (at) hit-to-key.net in case of bugs, questions or 
-feedback.
+feedback. You're also welcome to file an issue here on Github.
