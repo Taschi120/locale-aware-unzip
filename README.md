@@ -1,3 +1,9 @@
+# Download
+
+You can find the latest download here: https://github.com/Taschi120/locale-aware-unzip/releases
+
+# About
+
 This program allows you to extract ZIP archives which have been created on computers with a different system locale
 than the one on your machine (e. g. if the archive was created on a Japanese Windows installation, and your Windows
 installation is set to English). If any file within the archive has a file name which includes non-ASCII characters
