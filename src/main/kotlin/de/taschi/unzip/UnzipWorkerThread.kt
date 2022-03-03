@@ -7,7 +7,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.charset.Charset
 import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import java.util.zip.ZipInputStream
+
 
 class UnzipWorkerThread(val encoding: Charset,
                         val inputFile: File,
@@ -42,6 +44,10 @@ class UnzipWorkerThread(val encoding: Charset,
             throw UnzipException("Could not create directory ${innerOutputDir.absolutePath}")
         }
 
+        ZipFile(inputFile, encoding).use { zf ->
+            progress.setMaxCount(zf.size())
+        }
+
         FileInputStream(inputFile).use { fis ->
             ZipInputStream(fis, encoding).use { zis ->
                 log.info("Zip file opened.")
@@ -55,6 +61,7 @@ class UnzipWorkerThread(val encoding: Charset,
                         } else {
                             createFile(innerOutputDir, entry, zis)
                         }
+                        progress.incrementProcessedCount()
                     }
                 }
             }
