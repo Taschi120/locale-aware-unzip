@@ -1,5 +1,21 @@
 package de.taschi.unzip
 
+//    Locale Aware Unzipper
+//    Copyright (C) 2022 S. Hillebrand <dev@hit-to-key.net>
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.FileInputStream
@@ -104,13 +120,13 @@ class UnzipWorkerThread(val encoding: Charset,
     }
 
     private fun newFile(outputDir: File, entry: ZipEntry): File {
-        val destFile = File(outputDir, entry.getName())
+        val destFile = File(outputDir, entry.name)
 
-        val destDirPath: String = outputDir.getCanonicalPath()
+        val destDirPath: String = outputDir.canonicalPath
         val destFilePath: String = destFile.canonicalPath
 
         if (!destFilePath.startsWith(destDirPath + File.separator)) {
-            throw IOException("Entry is outside of the target dir: " + entry.getName())
+            throw IOException("Entry is outside of the target dir: " + entry.name)
         }
 
         return destFile
