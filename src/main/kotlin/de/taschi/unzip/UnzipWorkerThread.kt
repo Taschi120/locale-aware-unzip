@@ -92,7 +92,6 @@ class UnzipWorkerThread(val encoding: Charset,
 
         FileOutputStream(outfile).use { fos ->
             var buffer = ByteArray(1024)
-            var len: Int
             while(true) {
                 val length = zis.read(buffer)
                 if (length <= 0) break
@@ -105,7 +104,7 @@ class UnzipWorkerThread(val encoding: Charset,
     private fun createDirectory(outputDir: File, entry: ZipEntry) {
         log.info("Extracting dir ${entry.name}")
         val outfile = newFile(outputDir, entry)
-        mkdirp(outputDir)
+        mkdirp(outfile)
     }
 
     private fun mkdirp(dir: File) {
