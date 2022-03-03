@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.10'
     id 'application'
+    id 'edu.sc.seis.launch4j' version '2.5.1'
 }
 
 group = 'de.taschi'
@@ -30,5 +31,9 @@ compileTestKotlin {
 }
 
 application {
-    mainClassName = 'MainKt'
+    mainClass = 'de.taschi.unzip.MainKt'
+}
+
+launch4j {
+    mainClassName = 'de.taschi.unzip.MainKt'
 }

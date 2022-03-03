@@ -13,3 +13,12 @@ if you have indeed selected the correct encoding - if you see weird artifact let
 selected encoding is likely wrong.
 
 ![Screenshot](assets/screenshot-wrong-encoding.png)
+
+There are no unit tests so far because I mostly built this in one evening, and don't expect to do a lot more development
+on it in future.
+
+A Java Runtime Environment, version 8 or higher, is required. I recommend using Temurin, available at 
+https://adoptium.net/. Oracle's official JRE should also work.
+
+The project is licensed under GPL v3. Please contact me at dev (at) hit-to-key.net in case of bugs, questions or 
+feedback.
