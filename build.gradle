@@ -1,7 +1,9 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.10'
     id 'application'
+    id 'distribution'
     id 'edu.sc.seis.launch4j' version '2.5.1'
+    id "com.github.langmo.gradlensis" version "0.1.0"
 }
 
 group = 'de.taschi'
@@ -37,3 +39,39 @@ application {
 launch4j {
     mainClassName = 'de.taschi.unzip.MainKt'
 }
+
+distributions {
+    nsis {
+        distributionBaseName = 'nsis'
+
+        contents {
+            from(createExe) {
+                // For some reason, this tries to include the exe twice.
+                duplicatesStrategy DuplicatesStrategy.EXCLUDE
+                into ''
+            }
+            project(':') {
+                from(jar) {
+                    into 'lib'
+                }
+            }
+            from("${rootProject.projectDir}/COPYING") {
+                into ''
+            }
+            from("${rootProject.projectDir}/THIRD-PARTY") {
+                into ''
+            }
+        }
+    }
+}
+nsisDistTar.dependsOn createExe
+nsisDistZip.dependsOn createExe
+createInstaller.dependsOn installNsisDist
+
+nsis {
+    configuration = file("${rootProject.projectDir}/src/main/assembly/install.nsi")
+    runIn = file("${rootProject.buildDir}/install/nsis/")
+    destinationName = "locale-aware-unzip-${project.version}-install.exe"
+}
+
+createInstaller.dependsOn installNsisDist
