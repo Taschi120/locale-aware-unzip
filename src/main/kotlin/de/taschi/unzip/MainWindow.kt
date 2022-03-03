@@ -135,6 +135,10 @@ class MainWindow : JFrame("Locale Aware Unzip") {
             }
         }
 
+        inputFileField.addActionListener { _ ->
+            updatePreview()
+        }
+
         extractButton.addActionListener { _ ->
             startExtraction()
         }

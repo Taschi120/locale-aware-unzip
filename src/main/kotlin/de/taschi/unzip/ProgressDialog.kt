@@ -31,6 +31,7 @@ class ProgressDialog(parent: MainWindow): JDialog(parent) {
         add(progressBar, c2)
 
         minimumSize = Dimension(400, 160)
+        defaultCloseOperation = JDialog.DO_NOTHING_ON_CLOSE
         isModal = true
     }
 }
