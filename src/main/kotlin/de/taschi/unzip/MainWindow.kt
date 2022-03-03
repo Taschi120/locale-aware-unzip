@@ -5,8 +5,12 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.io.File
+import java.io.FileInputStream
 import java.nio.charset.Charset
+import java.util.zip.ZipInputStream
 import javax.swing.*
+
 
 class MainWindow : JFrame("Locale Aware Unzip") {
 
@@ -125,6 +129,14 @@ class MainWindow : JFrame("Locale Aware Unzip") {
             selectOutputDirectory()
         }
 
+        encodingField.addActionListener { _ ->
+            updatePreview()
+        }
+
+        extractButton.addActionListener { _ ->
+            startExtraction()
+        }
+
         minimumSize = Dimension(800, 400)
         pack()
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -168,8 +180,90 @@ class MainWindow : JFrame("Locale Aware Unzip") {
         return constraints
     }
 
-    private fun updatePreview() {
 
+    private fun startExtraction() {
+        val encoding = encodingField.selectedItem as Charset?
+        if (encoding == null) {
+            JOptionPane.showMessageDialog(this, "No encoding selected")
+            return
+        }
+
+        val inputFile = File(inputFileField.text)
+        val outputDir = File(outputDirField.text)
+
+        val progress = UnzipProgress()
+        val progressWindow = ProgressDialog(this)
+
+        var finished = false
+
+        val updateThread = Thread() {
+            while(!finished) {
+                progressWindow.progressBar.maximum = progress.getMaxCount()
+                progressWindow.progressBar.value = progress.getProcessedCount()
+                Thread.sleep(100)
+            }
+        }
+
+        val successCallback = {
+            progressWindow.isVisible = false
+            JOptionPane.showMessageDialog(this, "Extraction finished successfully")
+            finished = true
+        }
+
+        val errorCallback = { e: Exception ->
+            log.error("Exception during unzip", e)
+            progressWindow.isVisible = false
+            JOptionPane.showMessageDialog(this, "Error while unzipping, see log for details")
+            finished = false
+        }
+
+        val workerThread = UnzipWorkerThread(encoding, inputFile, outputDir, progress, successCallback, errorCallback)
+
+        workerThread.start()
+        updateThread.start()
+        progressWindow.isVisible = true
+    }
+
+    private fun updatePreview() {
+        val encoding = encodingField.selectedItem as Charset?
+        val inputFile = File(inputFileField.text)
+
+        if (encoding == null) {
+            log.info("No encoding selected")
+            fileNamePreview.text = ""
+            return
+        }
+
+        if (!inputFile.exists()) {
+            log.info("Input file ${inputFile.absolutePath} does not exist")
+            fileNamePreview.text = ""
+            return
+        }
+
+        updatePreview(encoding, inputFile)
+    }
+
+    private fun updatePreview(encoding: Charset, inputFile: File) {
+        try {
+            var out = StringBuilder()
+            FileInputStream(inputFile).use { fis ->
+                ZipInputStream(fis, encoding).use { zis ->
+                    while (true) {
+                        val entry = zis.nextEntry
+                        if (entry == null) {
+                            break
+                        } else {
+                            out.append(entry.name)
+                            out.append(System.lineSeparator())
+                        }
+                    }
+                }
+            }
+            fileNamePreview.text = out.toString()
+        } catch (e: Exception) {
+            log.error("Exception while creating preview: ", e)
+            fileNamePreview.text = "Error while creating preview. Selected encoding might be wrong."
+        }
     }
 
     companion object {
