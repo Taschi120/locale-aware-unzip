@@ -38,6 +38,7 @@ application {
 
 launch4j {
     mainClassName = 'de.taschi.unzip.MainKt'
+    jreMinVersion = '1.8'
 }
 
 distributions {
