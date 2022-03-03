@@ -5,10 +5,9 @@ import java.awt.Dimension
 import java.awt.GridBagConstraints
 import java.awt.GridBagLayout
 import java.awt.Insets
+import java.awt.event.ItemEvent
 import java.io.File
-import java.io.FileInputStream
 import java.nio.charset.Charset
-import java.util.zip.ZipInputStream
 import javax.swing.*
 
 
@@ -109,7 +108,8 @@ class MainWindow : JFrame("Locale Aware Unzip") {
 
             it.fill = GridBagConstraints.BOTH
 
-            add(fileNamePreview, it)
+            val sp = JScrollPane(fileNamePreview)
+            add(sp, it)
         }
 
         makeDefaultConstraints().let {
@@ -129,8 +129,10 @@ class MainWindow : JFrame("Locale Aware Unzip") {
             selectOutputDirectory()
         }
 
-        encodingField.addActionListener { _ ->
-            updatePreview()
+        encodingField.addItemListener { event ->
+            if (event.stateChange == ItemEvent.SELECTED) {
+                updatePreview()
+            }
         }
 
         extractButton.addActionListener { _ ->
@@ -240,30 +242,20 @@ class MainWindow : JFrame("Locale Aware Unzip") {
             return
         }
 
-        updatePreview(encoding, inputFile)
-    }
-
-    private fun updatePreview(encoding: Charset, inputFile: File) {
-        try {
-            var out = StringBuilder()
-            FileInputStream(inputFile).use { fis ->
-                ZipInputStream(fis, encoding).use { zis ->
-                    while (true) {
-                        val entry = zis.nextEntry
-                        if (entry == null) {
-                            break
-                        } else {
-                            out.append(entry.name)
-                            out.append(System.lineSeparator())
-                        }
-                    }
-                }
-            }
-            fileNamePreview.text = out.toString()
-        } catch (e: Exception) {
-            log.error("Exception while creating preview: ", e)
-            fileNamePreview.text = "Error while creating preview. Selected encoding might be wrong."
+        val onError = { e: Exception ->
+            log.error("Error while creating file name preview")
+            fileNamePreview.text = "Error while reading file names. The selected encoding is probably wrong."
+            this.isEnabled = true
         }
+
+        val onSuccess = { text: String ->
+            fileNamePreview.text = text
+            this.isEnabled = true
+        }
+
+        this.isEnabled = false
+        fileNamePreview.text = "Updating..."
+        PreviewCreator(encoding, inputFile, onSuccess, onError).start()
     }
 
     companion object {
